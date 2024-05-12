@@ -22,6 +22,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -146,30 +147,18 @@ class Widget : GlanceAppWidget() {
             it.dtstart?.let { dtstart -> isEventToday(dtstart) } == 1 // 2
         }
 
+        val widgetItemStates = listOf(
+            WidgetItemState(yesterdayEvents, "Yesterday", GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(todayEvents, "Today", GlanceTheme.colors.primaryContainer),
+            WidgetItemState(tomorrowEvents, "Tomorrow", GlanceTheme.colors.tertiaryContainer)
+        )
 
         LazyColumn(modifier = GlanceModifier.padding(8.dp)) {
-
-            item {
+            items(widgetItemStates) { widgetItemState ->
                 DayRow(
-                    events = yesterdayEvents,
-                    tag = "Yesterday",
-                    background = GlanceTheme.colors.secondaryContainer
-                )
-            }
-
-            item {
-                DayRow(
-                    events = todayEvents,
-                    tag = "Today",
-                    background = GlanceTheme.colors.primaryContainer
-                )
-            }
-
-            item {
-                DayRow(
-                    events = tomorrowEvents,
-                    tag = "Tomorrow",
-                    background = GlanceTheme.colors.tertiaryContainer
+                    events = widgetItemState.events,
+                    tag = widgetItemState.tag,
+                    background = widgetItemState.background
                 )
             }
 
@@ -261,5 +250,6 @@ class Widget : GlanceAppWidget() {
         return dateFormat.format(date)
     }
 
+    data class WidgetItemState(val events: List<CalendarContentResolver.Event>, val tag: String, val background: ColorProvider)
 
 }
