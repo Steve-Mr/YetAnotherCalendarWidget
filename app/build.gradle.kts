@@ -14,7 +14,7 @@ android {
         minSdk = 31
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0Alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,7 +24,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -47,6 +48,22 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    splits {
+        abi {
+            // Enable building multiple APKs per ABI.
+            isEnable = true
+
+            // Specify a list of ABIs to build APKs for.
+            include("armv8", "armeabi-v7a", "x86", "x86_64")
+
+            // Optionally, specify a list of ABIs to exclude.
+            // exclude("armeabi")
+
+            // Specify whether to also build a universal APK that includes all ABIs.
+            // isUniversalApk = false
         }
     }
 }
