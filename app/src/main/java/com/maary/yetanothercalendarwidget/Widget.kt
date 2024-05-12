@@ -57,11 +57,15 @@ class Widget : GlanceAppWidget() {
         val context = LocalContext.current
         val calendarContentResolver = CalendarContentResolver(context)
 
+        val weeklyEvents = calendarContentResolver.weeklyEventsStateFlow.collectAsState().value
         val threeDayEvents = calendarContentResolver.threeDayEventsStateFlow.collectAsState().value
 
         Box(contentAlignment = Alignment.TopEnd) {
             if (isWeekView) {
-                WeekView()
+                WeekView(
+                    modifier = GlanceModifier.background(GlanceTheme.colors.background),
+                    events = weeklyEvents
+                )
             } else {
                 DayView(
                     modifier = GlanceModifier.background(GlanceTheme.colors.background),
@@ -120,8 +124,43 @@ class Widget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun WeekView() {
-        LazyColumn {
+    private fun WeekView(
+        modifier: GlanceModifier,
+        events: List<CalendarContentResolver.Event>
+    ) {
+        val eventsByDay = events.groupBy {
+            when (it.dtstart?.let { it1 -> getDayOfWeek(it1) }) {
+                1 -> "MON"
+                2 -> "TUE"
+                3 -> "WED"
+                4 -> "THU"
+                5 -> "FRI"
+                6 -> "SAT"
+                7 -> "SUN"
+                else -> "NONE"
+            }
+        }
+
+        val widgetItemStates = listOf(
+            eventsByDay["MON"]?.let { WidgetItemState(it, "Monday", GlanceTheme.colors.primaryContainer) },
+            eventsByDay["TUE"]?.let { WidgetItemState(it, "Tuesday", GlanceTheme.colors.secondaryContainer) },
+            eventsByDay["WED"]?.let { WidgetItemState(it, "Wednesday", GlanceTheme.colors.tertiaryContainer) },
+            eventsByDay["THU"]?.let { WidgetItemState(it, "Thursday", GlanceTheme.colors.primaryContainer) },
+            eventsByDay["FRI"]?.let { WidgetItemState(it, "Friday", GlanceTheme.colors.secondaryContainer) },
+            eventsByDay["SAT"]?.let { WidgetItemState(it, "Saturday", GlanceTheme.colors.tertiaryContainer) },
+            eventsByDay["SUN"]?.let { WidgetItemState(it, "Sunday", GlanceTheme.colors.primaryContainer) },
+        )
+
+        LazyColumn (modifier = GlanceModifier.padding(8.dp)) {
+            items(widgetItemStates) { widgetItemState ->
+                if (widgetItemState != null) {
+                    DayRow(
+                        events = widgetItemState.events,
+                        tag = widgetItemState.tag,
+                        background = widgetItemState.background
+                    )
+                }
+            }
         }
     }
 
@@ -242,6 +281,23 @@ class Widget : GlanceAppWidget() {
         return if (currentDay == eventDay) 1
         else if (currentDay < eventDay) 2
         else 0
+    }
+
+    private fun getDayOfWeek(milliseconds: Long): Int {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliseconds
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        return when (dayOfWeek) {
+            Calendar.SUNDAY -> 7
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            Calendar.SATURDAY -> 6
+            else -> 0
+        }
     }
 
     private fun formatDateFromMilliseconds(milliseconds: Long): String {

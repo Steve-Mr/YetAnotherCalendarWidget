@@ -136,13 +136,6 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
             calendarId = preferences.getCalendars().first()
         }
 
-        // Query the Events table
-        val now = System.currentTimeMillis()
-
-        val yesterdayStart = now - TimeUnit.DAYS.toMillis(1L)
-        val todayStart = now
-        val tomorrowEnd = now + TimeUnit.DAYS.toMillis(2L)
-
         val uri = CalendarContract.Events.CONTENT_URI
         val projection = arrayOf(
             CalendarContract.Events._ID,
@@ -212,12 +205,97 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
         _threeDayEventsStateFlow.value = events
     }
 
+    // Create a StateFlow to hold the list of events
+    private val _weeklyEventsStateFlow = MutableStateFlow<List<Event>>(emptyList())
+
+    // Expose the StateFlow as a public property
+    val weeklyEventsStateFlow: StateFlow<List<Event>> = _weeklyEventsStateFlow.asStateFlow()
+
+    fun getWeeklyEventsForCalendar() {
+        // Check if the READ_CALENDAR permission is granted
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CALENDAR
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Handle permission denial
+            _eventsStateFlow.value = emptyList()
+            return
+        }
+
+        val preferences = PreferenceRepository(context)
+        var calendarId: String?
+
+        runBlocking {
+            calendarId = preferences.getCalendars().first()
+        }
+
+        // Get the start and end dates for the current week
+        val calendar = Calendar.getInstance()
+        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        val startOfWeek = calendar.clone() as Calendar
+        startOfWeek.add(Calendar.DAY_OF_WEEK, -firstDayOfWeek + 1)
+        startOfWeek.set(Calendar.HOUR_OF_DAY, 0)
+        startOfWeek.set(Calendar.MINUTE, 0)
+        startOfWeek.set(Calendar.SECOND, 0)
+        startOfWeek.set(Calendar.MILLISECOND, 0)
+        val endOfWeek = calendar.clone() as Calendar
+        endOfWeek.add(Calendar.DAY_OF_WEEK, 7 - firstDayOfWeek)
+        endOfWeek.set(Calendar.HOUR_OF_DAY, 23)
+        endOfWeek.set(Calendar.MINUTE, 59)
+        endOfWeek.set(Calendar.SECOND, 59)
+        endOfWeek.set(Calendar.MILLISECOND, 999)
+
+        // Query the content resolver for events in the current week
+        val uri = CalendarContract.Events.CONTENT_URI
+        val projection = arrayOf(
+            CalendarContract.Events._ID,
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DESCRIPTION,
+            CalendarContract.Events.DTSTART,
+            CalendarContract.Events.DTEND
+        )
+        val selection = "((${CalendarContract.Events.CALENDAR_ID} = ? AND ${CalendarContract.Events.DTSTART} >= ?) AND (${CalendarContract.Events.DTSTART} <= ?))"
+        val selectionArgs = arrayOf(
+            calendarId,
+            startOfWeek.timeInMillis.toString(),
+            endOfWeek.timeInMillis.toString()
+        )
+        val sortOrder = "${CalendarContract.Events.DTSTART} ASC"
+
+        val cursor = context.contentResolver.query(
+            uri,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )
+
+        // Create a list of events from the cursor
+        val events = mutableListOf<Event>()
+        cursor?.use {
+            while (it.moveToNext()) {
+                val id = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Events._ID))
+                val title = it.getString(it.getColumnIndexOrThrow(CalendarContract.Events.TITLE))
+                val dtstart = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
+                val dtend = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                val allDay = it.getIntOrNull(it.getColumnIndex(CalendarContract.Events.ALL_DAY))
+                events.add(Event(id, title, dtstart, dtend, allDay))
+            }
+        }
+
+        // Update the _eventsStateFlow with the filtered events
+        _weeklyEventsStateFlow.value = events
+
+    }
+
 
     data class CalendarR(val id: Long?, val displayName: String?)
     data class Event(val id: Long?, val title: String?, val dtstart: Long?, val dtend: Long?, val allDay: Int?)
 
     init {
         getThreeEventsForCalendar()
+        getWeeklyEventsForCalendar()
     }
 }
 

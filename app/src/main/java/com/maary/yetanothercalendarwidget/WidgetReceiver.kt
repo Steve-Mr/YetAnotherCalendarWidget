@@ -30,6 +30,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             Widget().updateAll(context) // This can be suspend if needed
             calendarContentResolver.getThreeEventsForCalendar()
+            calendarContentResolver.getWeeklyEventsForCalendar()
         }
     }
 }
