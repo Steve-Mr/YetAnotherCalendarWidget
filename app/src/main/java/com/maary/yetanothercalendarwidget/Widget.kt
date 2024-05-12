@@ -175,7 +175,7 @@ class Widget : GlanceAppWidget() {
         events: List<CalendarContentResolver.Event>
     ) {
         val yesterdayEvents = events.filter {
-            it.dtstart?.let { dtstart -> isEventToday(dtstart) } == 1 // 0
+            it.dtstart?.let { dtstart -> isEventToday(dtstart) } == 0
         }
 
         val todayEvents = events.filter {
@@ -183,7 +183,7 @@ class Widget : GlanceAppWidget() {
         }
 
         val tomorrowEvents = events.filter {
-            it.dtstart?.let { dtstart -> isEventToday(dtstart) } == 1 // 2
+            it.dtstart?.let { dtstart -> isEventToday(dtstart) } == 2
         }
 
         val widgetItemStates = listOf(
