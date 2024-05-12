@@ -1,7 +1,9 @@
 package com.maary.yetanothercalendarwidget
 
 import android.content.Context
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +17,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.cornerRadius
@@ -22,6 +25,7 @@ import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -54,10 +58,21 @@ class Widget : GlanceAppWidget() {
 
         val threeDayEvents = calendarContentResolver.threeDayEventsStateFlow.collectAsState().value
 
-        Column {
-            Row (horizontalAlignment = Alignment.End,
+        Box(contentAlignment = Alignment.TopEnd) {
+            if (isWeekView) {
+                WeekView()
+            } else {
+                DayView(
+                    modifier = GlanceModifier.background(GlanceTheme.colors.background),
+                    events = threeDayEvents
+                )
+            }
+
+            Row(
+                horizontalAlignment = Alignment.End,
                 modifier = GlanceModifier
-                    .fillMaxWidth().padding(8.dp)){
+                    .fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+            ) {
 
                 Image(modifier = GlanceModifier
                     .cornerRadius(16.dp)
@@ -82,17 +97,22 @@ class Widget : GlanceAppWidget() {
                         if (isWeekView) R.drawable.ic_day else R.drawable.ic_week
                     ),
                     contentDescription = "change")
-            }
-            Spacer(modifier = GlanceModifier.height(8.dp))
 
-                if (isWeekView) {
-                    WeekView()
-                } else {
-                    DayView(
-                        modifier = GlanceModifier.background(GlanceTheme.colors.background),
-                        events = threeDayEvents
-                    )
-                }
+                Spacer(modifier = GlanceModifier.width(8.dp))
+
+                Image(
+                    modifier = GlanceModifier
+                        .cornerRadius(16.dp)
+                        .clickable(
+                            actionStartActivity(MainActivity::class.java)
+                        )
+                        .background(GlanceTheme.colors.inversePrimary)
+                        .padding(4.dp),
+                    provider = ImageProvider(R.drawable.ic_settings),
+                    contentDescription = "change"
+                )
+
+            }
 
 
         }
@@ -130,25 +150,30 @@ class Widget : GlanceAppWidget() {
         LazyColumn(modifier = GlanceModifier.padding(8.dp)) {
 
             item {
-                DayRow(events = yesterdayEvents,
+                DayRow(
+                    events = yesterdayEvents,
                     tag = "Yesterday",
-                    background = GlanceTheme.colors.secondaryContainer)
+                    background = GlanceTheme.colors.secondaryContainer
+                )
             }
 
             item {
-                DayRow(events = todayEvents,
+                DayRow(
+                    events = todayEvents,
                     tag = "Today",
-                    background = GlanceTheme.colors.primaryContainer)
+                    background = GlanceTheme.colors.primaryContainer
+                )
             }
 
             item {
-                DayRow(events = tomorrowEvents,
+                DayRow(
+                    events = tomorrowEvents,
                     tag = "Tomorrow",
-                    background = GlanceTheme.colors.tertiaryContainer)
+                    background = GlanceTheme.colors.tertiaryContainer
+                )
             }
 
         }
-
 
 
     }
@@ -171,7 +196,7 @@ class Widget : GlanceAppWidget() {
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                events.forEach {event ->
+                events.forEach { event ->
                     DayItem(event)
                 }
             }
@@ -189,10 +214,14 @@ class Widget : GlanceAppWidget() {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(formatDateFromMilliseconds(event.dtstart!!))
+            Text(
+                text = formatDateFromMilliseconds(event.dtstart!!),
+                style = TextStyle(GlanceTheme.colors.onSurface)
+            )
             Text(
                 modifier = GlanceModifier.padding(horizontal = 16.dp),
-                text = event.title.toString()
+                text = event.title.toString(),
+                style = TextStyle(GlanceTheme.colors.onSurface)
             )
         }
 
@@ -206,7 +235,7 @@ class Widget : GlanceAppWidget() {
             modifier = GlanceModifier.background(GlanceTheme.colors.inverseSurface)
                 .cornerRadius(8.dp)
                 .wrapContentWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 

@@ -2,11 +2,14 @@ package com.maary.yetanothercalendarwidget.ui
 
 import androidx.lifecycle.ViewModel
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class CalendarsViewModel(private val calendarContentResolver: CalendarContentResolver) : ViewModel() {
+@HiltViewModel
+class CalendarsViewModel @Inject constructor(private val calendarContentResolver: CalendarContentResolver) : ViewModel() {
 
     private val _calendars = MutableStateFlow<List<CalendarContentResolver.CalendarR>>(emptyList())
     val calendars: StateFlow<List<CalendarContentResolver.CalendarR>> = _calendars.asStateFlow()

@@ -24,12 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
 import com.maary.yetanothercalendarwidget.PreferenceRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +39,7 @@ fun CalendarsListScreen() {
 
     val context = LocalContext.current
 
-    val calendarContentResolver = CalendarContentResolver(context)
-    val viewModel: CalendarsViewModel = CalendarsViewModel(calendarContentResolver)
+    val viewModel: CalendarsViewModel = viewModel()
     val preferenceRepository: PreferenceRepository = PreferenceRepository(context)
 
     // check if the read calendar permission is granted

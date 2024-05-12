@@ -10,6 +10,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,13 +19,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import java.util.Calendar
+import javax.inject.Inject
 
 private const val PROJECTION_ID_INDEX: Int = 0
 private const val PROJECTION_ACCOUNT_NAME_INDEX: Int = 1
 private const val PROJECTION_DISPLAY_NAME_INDEX: Int = 2
 private const val PROJECTION_OWNER_ACCOUNT_INDEX: Int = 3
 
-class CalendarContentResolver(private val context: Context) {
+class CalendarContentResolver @Inject constructor(@ApplicationContext val context: Context) {
 
     private val contentResolver = context.contentResolver
 
