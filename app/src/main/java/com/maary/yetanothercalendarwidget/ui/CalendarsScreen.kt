@@ -1,8 +1,12 @@
 package com.maary.yetanothercalendarwidget.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -15,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -93,6 +98,7 @@ fun CalendarsListScreen() {
                                 preferenceRepository.setCalendars(calendars.value[index].id.toString())
                             }
                             Log.v("CAS", calendars.value[index].id.toString())
+                            (context as? Activity)?.finish()
                         }
                     }
                 )

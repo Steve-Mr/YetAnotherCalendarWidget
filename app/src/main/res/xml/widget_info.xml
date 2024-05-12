@@ -9,6 +9,7 @@
     android:updatePeriodMillis="10800000"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:widgetFeatures="reconfigurable|configuration_optional">
-    >
+    android:widgetFeatures="reconfigurable|configuration_optional"
+    android:configure="com.maary.yetanothercalendarwidget.MainActivity">
+
 </appwidget-provider>
