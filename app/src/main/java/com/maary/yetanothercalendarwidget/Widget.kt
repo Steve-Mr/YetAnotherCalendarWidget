@@ -142,24 +142,22 @@ class Widget : GlanceAppWidget() {
         }
 
         val widgetItemStates = listOf(
-            eventsByDay["MON"]?.let { WidgetItemState(it, "Monday", GlanceTheme.colors.primaryContainer) },
-            eventsByDay["TUE"]?.let { WidgetItemState(it, "Tuesday", GlanceTheme.colors.secondaryContainer) },
-            eventsByDay["WED"]?.let { WidgetItemState(it, "Wednesday", GlanceTheme.colors.tertiaryContainer) },
-            eventsByDay["THU"]?.let { WidgetItemState(it, "Thursday", GlanceTheme.colors.primaryContainer) },
-            eventsByDay["FRI"]?.let { WidgetItemState(it, "Friday", GlanceTheme.colors.secondaryContainer) },
-            eventsByDay["SAT"]?.let { WidgetItemState(it, "Saturday", GlanceTheme.colors.tertiaryContainer) },
-            eventsByDay["SUN"]?.let { WidgetItemState(it, "Sunday", GlanceTheme.colors.primaryContainer) },
+            WidgetItemState(eventsByDay["SUN"]?: emptyList(), "Sunday", GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["MON"]?: emptyList(), "Monday", GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["TUE"]?: emptyList(), "Tuesday", GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(eventsByDay["WED"]?: emptyList(), "Wednesday", GlanceTheme.colors.tertiaryContainer),
+            WidgetItemState(eventsByDay["THU"]?: emptyList(), "Thursday", GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["FRI"]?: emptyList(), "Friday", GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(eventsByDay["SAT"]?: emptyList(), "Saturday", GlanceTheme.colors.tertiaryContainer)
         )
 
         LazyColumn (modifier = GlanceModifier.padding(8.dp)) {
             items(widgetItemStates) { widgetItemState ->
-                if (widgetItemState != null) {
-                    DayRow(
-                        events = widgetItemState.events,
-                        tag = widgetItemState.tag,
-                        background = widgetItemState.background
-                    )
-                }
+                DayRow(
+                    events = widgetItemState.events,
+                    tag = widgetItemState.tag,
+                    background = widgetItemState.background
+                )
             }
         }
     }
