@@ -13,8 +13,8 @@ android {
         applicationId = "com.maary.yetanothercalendarwidget"
         minSdk = 31
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0Alpha"
+        versionCode = 2
+        versionName = "1.0Alpha.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

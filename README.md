@@ -26,3 +26,4 @@ Plus, it's free!
 - [ ] Generalization (such as displaying information from multiple calendars)
 - [ ] Stability (there's currently a high chance of automatic information updates not functioning)
 - [ ] Enhancement of app details (eliminating hard-coded strings, adding widget previews, etc.)
+- [x] Replaced hard-coded strings with string resource
