@@ -1,9 +1,7 @@
-package com.maary.yetanothercalendarwidget
+package com.maary.yetanothercalendarwidget.calenderwidget
 
 import android.content.Context
-import android.content.Intent
 import android.icu.text.SimpleDateFormat
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +36,9 @@ import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.maary.yetanothercalendarwidget.CalendarContentResolver
+import com.maary.yetanothercalendarwidget.MainActivity
+import com.maary.yetanothercalendarwidget.R
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -142,13 +143,13 @@ class Widget : GlanceAppWidget() {
         }
 
         val widgetItemStates = listOf(
-            WidgetItemState(eventsByDay["SUN"]?: emptyList(), "Sunday", GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["MON"]?: emptyList(), "Monday", GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["TUE"]?: emptyList(), "Tuesday", GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(eventsByDay["WED"]?: emptyList(), "Wednesday", GlanceTheme.colors.tertiaryContainer),
-            WidgetItemState(eventsByDay["THU"]?: emptyList(), "Thursday", GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["FRI"]?: emptyList(), "Friday", GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(eventsByDay["SAT"]?: emptyList(), "Saturday", GlanceTheme.colors.tertiaryContainer)
+            WidgetItemState(eventsByDay["SUN"]?: emptyList(), LocalContext.current.getString(R.string.sunday), GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["MON"]?: emptyList(), LocalContext.current.getString(R.string.monday), GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["TUE"]?: emptyList(), LocalContext.current.getString(R.string.tuesday), GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(eventsByDay["WED"]?: emptyList(), LocalContext.current.getString(R.string.wednesday), GlanceTheme.colors.tertiaryContainer),
+            WidgetItemState(eventsByDay["THU"]?: emptyList(),  LocalContext.current.getString(R.string.thursday), GlanceTheme.colors.primaryContainer),
+            WidgetItemState(eventsByDay["FRI"]?: emptyList(),  LocalContext.current.getString(R.string.friday), GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(eventsByDay["SAT"]?: emptyList(),  LocalContext.current.getString(R.string.saturday), GlanceTheme.colors.tertiaryContainer)
         )
 
         LazyColumn (modifier = GlanceModifier.padding(8.dp)) {
@@ -160,11 +161,6 @@ class Widget : GlanceAppWidget() {
                 )
             }
         }
-    }
-
-    @Composable
-    private fun WeekItem() {
-
     }
 
     @Composable
@@ -185,9 +181,9 @@ class Widget : GlanceAppWidget() {
         }
 
         val widgetItemStates = listOf(
-            WidgetItemState(yesterdayEvents, "Yesterday", GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(todayEvents, "Today", GlanceTheme.colors.primaryContainer),
-            WidgetItemState(tomorrowEvents, "Tomorrow", GlanceTheme.colors.tertiaryContainer)
+            WidgetItemState(yesterdayEvents, LocalContext.current.getString(R.string.yesterday), GlanceTheme.colors.secondaryContainer),
+            WidgetItemState(todayEvents, LocalContext.current.getString(R.string.today), GlanceTheme.colors.primaryContainer),
+            WidgetItemState(tomorrowEvents, LocalContext.current.getString(R.string.tomorrow), GlanceTheme.colors.tertiaryContainer)
         )
 
         LazyColumn(modifier = GlanceModifier.padding(8.dp)) {

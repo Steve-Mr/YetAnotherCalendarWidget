@@ -22,14 +22,26 @@
             android:theme="@style/Theme.YetAnotherCalendarWidget">
         </activity>
 
-        <receiver android:name=".WidgetReceiver"
-            android:exported="true">
+        <receiver android:name=".calenderwidget.WidgetReceiver"
+            android:exported="true"
+            android:label="@string/calendar_widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
+        </receiver>
+
+        <receiver android:name=".blankwidget.BlankWidgetProvider"
+            android:exported="true"
+            android:label="@string/blank_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/blank_widget_info" />
         </receiver>
 
     </application>
