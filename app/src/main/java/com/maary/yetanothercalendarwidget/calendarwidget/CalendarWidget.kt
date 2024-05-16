@@ -289,6 +289,7 @@ class CalendarWidget : GlanceAppWidget() {
                 val dtend = formatMillisecondsToHhMm(event.dtend!!)
 
                 Text(
+                    modifier = GlanceModifier.fillMaxWidth(),
                     text = if (event.allDay == false && dtend != dtstart) {
                         "$dtstart - $dtend"
                     } else LocalContext.current.getString(R.string.allday),
