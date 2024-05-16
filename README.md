@@ -11,8 +11,7 @@ primarily to showcase a list of anime airing dates in the calendar.
 It can display schedules in intervals of three days or one week.
 
 | ![](/imgs/3days.png) | ![](/imgs/weekly.png) |
-| :------------------: | :------------------: |
-<!-- |    three days view   |     weekly view     | -->
+|:--------------------:|:---------------------:|
 
 ## Why
 
@@ -23,7 +22,9 @@ Plus, it's free!
 
 ## Todo
 
+- [ ] More customization 
 - [ ] Generalization (such as displaying information from multiple calendars)
 - [ ] Stability (there's currently a high chance of automatic information updates not functioning)
 - [ ] Enhancement of app details (eliminating hard-coded strings, adding widget previews, etc.)
 - [x] Replaced hard-coded strings with string resource
+- [x] displaying information from multiple calendars
