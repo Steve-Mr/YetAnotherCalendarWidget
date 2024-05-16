@@ -22,7 +22,7 @@
             android:theme="@style/Theme.YetAnotherCalendarWidget">
         </activity>
 
-        <receiver android:name=".calenderwidget.WidgetReceiver"
+        <receiver android:name=".calendarwidget.CalendarWidgetReceiver"
             android:exported="true"
             android:label="@string/calendar_widget">
             <intent-filter>
@@ -30,7 +30,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
+                android:resource="@xml/calendar_widget_info" />
         </receiver>
 
         <receiver android:name=".blankwidget.BlankWidgetProvider"

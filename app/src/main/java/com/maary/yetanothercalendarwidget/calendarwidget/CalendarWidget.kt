@@ -1,7 +1,9 @@
-package com.maary.yetanothercalendarwidget.calenderwidget
+package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.content.Context
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
+import android.provider.CalendarContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -9,15 +11,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
@@ -33,6 +40,7 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentWidth
+import androidx.glance.text.FontStyle
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -43,7 +51,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class Widget : GlanceAppWidget() {
+class CalendarWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
@@ -214,8 +222,8 @@ class Widget : GlanceAppWidget() {
             Column(
                 modifier = GlanceModifier
                     .cornerRadius(16.dp)
-                    .background(background)
-                    .padding(horizontal = 16.dp),
+                    .background(background),
+//                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 events.forEach { event ->
@@ -227,24 +235,41 @@ class Widget : GlanceAppWidget() {
 
     }
 
-
     @Composable
     private fun DayItem(event: CalendarContentResolver.Event) {
         Row(
             modifier = GlanceModifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
+                .clickable (actionRunCallback<OpenEventAction>(
+                    parameters = actionParametersOf(
+                        ActionParameters.Key<Long>("eventId") to (event.id ?: -1)
+                    )
+                ))
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = formatDateFromMilliseconds(event.dtstart!!),
                 style = TextStyle(GlanceTheme.colors.onSurface)
             )
-            Text(
-                modifier = GlanceModifier.padding(horizontal = 16.dp),
-                text = event.title.toString(),
-                style = TextStyle(GlanceTheme.colors.onSurface)
-            )
+            Column (modifier = GlanceModifier.padding(horizontal = 16.dp)){
+                if (event.allDay != 0) {
+                    Text(
+                        text = "${formatMillisecondsToHhMm(event.dtstart)} - ${formatMillisecondsToHhMm(event.dtend!!)}",
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onSurface,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 12.sp)
+                    )
+                }
+                Text(
+                    text = event.title.toString(),
+                    style = TextStyle(
+                        color = GlanceTheme.colors.onSurface,
+                        fontSize = 16.sp)
+                )
+            }
         }
 
     }
@@ -298,6 +323,12 @@ class Widget : GlanceAppWidget() {
         val dateFormat = SimpleDateFormat("MM-dd", Locale.getDefault())
         val date = Date(milliseconds)
         return dateFormat.format(date)
+    }
+
+    private fun formatMillisecondsToHhMm(milliseconds: Long): String {
+        val date = Date(milliseconds)
+        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return formatter.format(date)
     }
 
     data class WidgetItemState(val events: List<CalendarContentResolver.Event>, val tag: String, val background: ColorProvider)

@@ -1,10 +1,10 @@
-package com.maary.yetanothercalendarwidget.calenderwidget
+package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.updateAll
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class WidgetReceiver: GlanceAppWidgetReceiver() {
+class CalendarWidgetReceiver: GlanceAppWidgetReceiver() {
 
     @Inject
     lateinit var calendarContentResolver: CalendarContentResolver
 
     override val glanceAppWidget: GlanceAppWidget
-        get() = Widget()
+        get() = CalendarWidget()
 
     override fun onUpdate(
         context: Context,
@@ -28,9 +28,17 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         CoroutineScope(Dispatchers.IO).launch {
-            Widget().updateAll(context) // This can be suspend if needed
+//            Widget().updateAll(context) // This can be suspend if needed
             calendarContentResolver.getThreeEventsForCalendar()
             calendarContentResolver.getWeeklyEventsForCalendar()
+            val manager = GlanceAppWidgetManager(context)
+            val calendarWidget = CalendarWidget()
+            val glanceIds = manager.getGlanceIds(calendarWidget.javaClass)
+            glanceIds.forEach { glanceId ->
+                calendarWidget.update(context, glanceId)
+            }
         }
+
+
     }
 }

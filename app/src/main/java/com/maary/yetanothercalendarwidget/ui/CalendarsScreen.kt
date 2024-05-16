@@ -27,12 +27,14 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
 import com.maary.yetanothercalendarwidget.PreferenceRepository
+import com.maary.yetanothercalendarwidget.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -82,7 +84,7 @@ fun CalendarsListScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Calendars") }
+                title = { Text(stringResource(id = R.string.calendars)) }
             )
         }
     ) { innerPadding ->
