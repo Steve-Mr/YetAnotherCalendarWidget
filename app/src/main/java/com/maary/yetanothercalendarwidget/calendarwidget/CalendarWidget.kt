@@ -1,9 +1,7 @@
 package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.content.Context
-import android.content.Intent
 import android.icu.text.SimpleDateFormat
-import android.provider.CalendarContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,7 +21,6 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -71,15 +68,9 @@ class CalendarWidget : GlanceAppWidget() {
 
         Box(contentAlignment = Alignment.TopEnd) {
             if (isWeekView) {
-                WeekView(
-                    modifier = GlanceModifier.background(GlanceTheme.colors.background),
-                    events = weeklyEvents
-                )
+                WeekView(events = weeklyEvents)
             } else {
-                DayView(
-                    modifier = GlanceModifier.background(GlanceTheme.colors.background),
-                    events = threeDayEvents
-                )
+                DayView(events = threeDayEvents)
             }
 
             Row(
@@ -134,7 +125,6 @@ class CalendarWidget : GlanceAppWidget() {
 
     @Composable
     private fun WeekView(
-        modifier: GlanceModifier,
         events: List<CalendarContentResolver.Event>
     ) {
         val eventsByDay = events.groupBy {
@@ -151,16 +141,44 @@ class CalendarWidget : GlanceAppWidget() {
         }
 
         val widgetItemStates = listOf(
-            WidgetItemState(eventsByDay["SUN"]?: emptyList(), LocalContext.current.getString(R.string.sunday), GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["MON"]?: emptyList(), LocalContext.current.getString(R.string.monday), GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["TUE"]?: emptyList(), LocalContext.current.getString(R.string.tuesday), GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(eventsByDay["WED"]?: emptyList(), LocalContext.current.getString(R.string.wednesday), GlanceTheme.colors.tertiaryContainer),
-            WidgetItemState(eventsByDay["THU"]?: emptyList(),  LocalContext.current.getString(R.string.thursday), GlanceTheme.colors.primaryContainer),
-            WidgetItemState(eventsByDay["FRI"]?: emptyList(),  LocalContext.current.getString(R.string.friday), GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(eventsByDay["SAT"]?: emptyList(),  LocalContext.current.getString(R.string.saturday), GlanceTheme.colors.tertiaryContainer)
+            WidgetItemState(
+                eventsByDay["SUN"] ?: emptyList(),
+                LocalContext.current.getString(R.string.sunday),
+                GlanceTheme.colors.primaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["MON"] ?: emptyList(),
+                LocalContext.current.getString(R.string.monday),
+                GlanceTheme.colors.primaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["TUE"] ?: emptyList(),
+                LocalContext.current.getString(R.string.tuesday),
+                GlanceTheme.colors.secondaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["WED"] ?: emptyList(),
+                LocalContext.current.getString(R.string.wednesday),
+                GlanceTheme.colors.tertiaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["THU"] ?: emptyList(),
+                LocalContext.current.getString(R.string.thursday),
+                GlanceTheme.colors.primaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["FRI"] ?: emptyList(),
+                LocalContext.current.getString(R.string.friday),
+                GlanceTheme.colors.secondaryContainer
+            ),
+            WidgetItemState(
+                eventsByDay["SAT"] ?: emptyList(),
+                LocalContext.current.getString(R.string.saturday),
+                GlanceTheme.colors.tertiaryContainer
+            )
         )
 
-        LazyColumn (modifier = GlanceModifier.padding(8.dp)) {
+        LazyColumn(modifier = GlanceModifier.padding(8.dp)) {
             items(widgetItemStates) { widgetItemState ->
                 DayRow(
                     events = widgetItemState.events,
@@ -173,7 +191,6 @@ class CalendarWidget : GlanceAppWidget() {
 
     @Composable
     private fun DayView(
-        modifier: GlanceModifier,
         events: List<CalendarContentResolver.Event>
     ) {
         val yesterdayEvents = events.filter {
@@ -189,9 +206,21 @@ class CalendarWidget : GlanceAppWidget() {
         }
 
         val widgetItemStates = listOf(
-            WidgetItemState(yesterdayEvents, LocalContext.current.getString(R.string.yesterday), GlanceTheme.colors.secondaryContainer),
-            WidgetItemState(todayEvents, LocalContext.current.getString(R.string.today), GlanceTheme.colors.primaryContainer),
-            WidgetItemState(tomorrowEvents, LocalContext.current.getString(R.string.tomorrow), GlanceTheme.colors.tertiaryContainer)
+            WidgetItemState(
+                yesterdayEvents,
+                LocalContext.current.getString(R.string.yesterday),
+                GlanceTheme.colors.secondaryContainer
+            ),
+            WidgetItemState(
+                todayEvents,
+                LocalContext.current.getString(R.string.today),
+                GlanceTheme.colors.primaryContainer
+            ),
+            WidgetItemState(
+                tomorrowEvents,
+                LocalContext.current.getString(R.string.tomorrow),
+                GlanceTheme.colors.tertiaryContainer
+            )
         )
 
         LazyColumn(modifier = GlanceModifier.padding(8.dp)) {
@@ -223,7 +252,6 @@ class CalendarWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .cornerRadius(16.dp)
                     .background(background),
-//                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 events.forEach { event ->
@@ -239,11 +267,13 @@ class CalendarWidget : GlanceAppWidget() {
     private fun DayItem(event: CalendarContentResolver.Event) {
         Row(
             modifier = GlanceModifier
-                .clickable (actionRunCallback<OpenEventAction>(
-                    parameters = actionParametersOf(
-                        ActionParameters.Key<Long>("eventId") to (event.id ?: -1)
+                .clickable(
+                    actionRunCallback<OpenEventAction>(
+                        parameters = actionParametersOf(
+                            ActionParameters.Key<Long>("eventId") to (event.id ?: -1)
+                        )
                     )
-                ))
+                )
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.Start,
@@ -253,21 +283,28 @@ class CalendarWidget : GlanceAppWidget() {
                 text = formatDateFromMilliseconds(event.dtstart!!),
                 style = TextStyle(GlanceTheme.colors.onSurface)
             )
-            Column (modifier = GlanceModifier.padding(horizontal = 16.dp)){
-                if (event.allDay != 0) {
-                    Text(
-                        text = "${formatMillisecondsToHhMm(event.dtstart)} - ${formatMillisecondsToHhMm(event.dtend!!)}",
-                        style = TextStyle(
-                            color = GlanceTheme.colors.onSurface,
-                            fontStyle = FontStyle.Italic,
-                            fontSize = 12.sp)
+            Column(modifier = GlanceModifier.padding(horizontal = 16.dp)) {
+
+                val dtstart = formatMillisecondsToHhMm(event.dtstart)
+                val dtend = formatMillisecondsToHhMm(event.dtend!!)
+
+                Text(
+                    text = if (event.allDay == false && dtend != dtstart) {
+                        "$dtstart - $dtend"
+                    } else LocalContext.current.getString(R.string.allday),
+                    style = TextStyle(
+                        color = GlanceTheme.colors.onSurface,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 12.sp
                     )
-                }
+                )
+
                 Text(
                     text = event.title.toString(),
                     style = TextStyle(
                         color = GlanceTheme.colors.onSurface,
-                        fontSize = 16.sp)
+                        fontSize = 16.sp
+                    )
                 )
             }
         }
@@ -331,6 +368,10 @@ class CalendarWidget : GlanceAppWidget() {
         return formatter.format(date)
     }
 
-    data class WidgetItemState(val events: List<CalendarContentResolver.Event>, val tag: String, val background: ColorProvider)
+    data class WidgetItemState(
+        val events: List<CalendarContentResolver.Event>,
+        val tag: String,
+        val background: ColorProvider
+    )
 
 }

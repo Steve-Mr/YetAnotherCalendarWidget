@@ -14,4 +14,5 @@
     <string name="today">今天</string>
     <string name="tomorrow">明天</string>
     <string name="calendars">日历</string>
+    <string name="allday">全天</string>
 </resources>

@@ -6,13 +6,16 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class PreferenceRepository(context: Context) {
+class PreferenceRepository @Inject constructor(@ApplicationContext context: Context) {
 
     private val dataStore = context.dataStore
 
@@ -20,15 +23,15 @@ class PreferenceRepository(context: Context) {
         val CALENDARS = stringPreferencesKey("calendars")
     }
 
-    fun getCalendars(): Flow<String?> {
+    fun getCalendars(): Flow<List<Long>?> {
         return dataStore.data.map { preferences ->
-            preferences[CALENDARS]
+            preferences[CALENDARS]?.split(",")?.map { it.toLong() }
         }
     }
 
-    suspend fun setCalendars(calendars: String) {
+    suspend fun setCalendars(calendars: List<Long>) {
         dataStore.edit { preferences ->
-            preferences[CALENDARS] = calendars
+            preferences[CALENDARS] = calendars.joinToString(separator = ",")
         }
     }
 

@@ -7,7 +7,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 
-class OpenEventAction() : ActionCallback {
+class OpenEventAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
