@@ -27,9 +27,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
 import com.maary.yetanothercalendarwidget.R
+import com.maary.yetanothercalendarwidget.calendarwidget.CalendarWidget
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,11 +84,18 @@ fun CalendarsListScreen(appWidgetId: Int) {
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 viewModel.finishSelection()
+                coroutineScope.launch {
+                    val manager = GlanceAppWidgetManager(context)
+                    val widget = CalendarWidget()
+                    val glanceIds = manager.getGlanceIds(widget.javaClass)
+                    glanceIds.forEach { glanceId ->
+                        widget.update(context, glanceId)
+                    }
+                }
                 val resultIntent = Intent().apply {
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 }
                 (context as? Activity)?.setResult(Activity.RESULT_OK, resultIntent)
-
                 (context as? Activity)?.finish()
             }) {
                 Icon(painter = painterResource(id = R.drawable.ic_done), contentDescription = null)
@@ -130,10 +139,3 @@ fun CalendarItem(
         },
     )
 }
-
-
-//@Preview(showSystemUi = true)
-//@Composable
-//fun CalendarsListScreenPreview() {
-//    CalendarsListScreen()
-//}

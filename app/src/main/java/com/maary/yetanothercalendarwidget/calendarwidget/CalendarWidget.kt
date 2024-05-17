@@ -85,6 +85,7 @@ class CalendarWidget : GlanceAppWidget() {
                     .cornerRadius(16.dp)
                     .clickable {
                         calendarContentResolver.getThreeEventsForCalendar()
+                        calendarContentResolver.getWeeklyEventsForCalendar()
                     }
                     .background(GlanceTheme.colors.inversePrimary)
                     .padding(4.dp),

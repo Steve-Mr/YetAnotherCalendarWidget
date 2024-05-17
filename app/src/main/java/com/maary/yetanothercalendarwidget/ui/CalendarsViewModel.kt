@@ -56,13 +56,19 @@ class CalendarsViewModel @Inject constructor(
 
     fun selectCalendar(id: Long) {
         _selected.update {
-            _selected.value.plus(id)
+            if (_selected.value.contains(id)) {
+                _selected.value.minus(id)
+            }else {
+                _selected.value.plus(id)
+            }
         }
     }
 
     fun finishSelection() {
         viewModelScope.launch {
             preferenceRepository.setCalendars(_selected.value)
+            calendarContentResolver.getWeeklyEventsForCalendar()
+            calendarContentResolver.getThreeEventsForCalendar()
             Log.v("CAS", "${_selected.value}")
         }
     }
