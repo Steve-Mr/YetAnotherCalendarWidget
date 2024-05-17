@@ -2,6 +2,8 @@ package com.maary.yetanothercalendarwidget.ui
 
 import android.Manifest
 import android.app.Activity
+import android.appwidget.AppWidgetManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarsListScreen() {
+fun CalendarsListScreen(appWidgetId: Int) {
 
     val context = LocalContext.current
 
@@ -81,10 +82,14 @@ fun CalendarsListScreen() {
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 viewModel.finishSelection()
+                val resultIntent = Intent().apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                }
+                (context as? Activity)?.setResult(Activity.RESULT_OK, resultIntent)
+
                 (context as? Activity)?.finish()
             }) {
                 Icon(painter = painterResource(id = R.drawable.ic_done), contentDescription = null)
-
             }
         }
     ) { innerPadding ->
@@ -97,11 +102,6 @@ fun CalendarsListScreen() {
                     calendars.value[index],
                     onItemClick = {
                         coroutineScope.launch {
-//                            runBlocking {
-//                                preferenceRepository.setCalendars(calendars.value[index].id.toString())
-//                            }
-//                            Log.v("CAS", calendars.value[index].id.toString())
-//                            (context as? Activity)?.finish()
                             calendars.value[index].id?.let { viewModel.selectCalendar(it) }
                         }
                     }
@@ -132,8 +132,8 @@ fun CalendarItem(
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun CalendarsListScreenPreview() {
-    CalendarsListScreen()
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun CalendarsListScreenPreview() {
+//    CalendarsListScreen()
+//}
