@@ -2,6 +2,7 @@ package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat
+import androidx.annotation.Keep
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,6 +50,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@Keep
 class CalendarWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {

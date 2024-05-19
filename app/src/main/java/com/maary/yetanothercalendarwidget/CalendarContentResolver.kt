@@ -75,10 +75,10 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
         }
 
         val preferences = PreferenceRepository(context)
-        var calendarIdList: List<Long>?
+        var calendarIdList: List<Long>
 
         runBlocking {
-            calendarIdList = preferences.getCalendars().first()
+            calendarIdList = if (preferences.getCalendars().first()!=null) preferences.getCalendars().first()!! else emptyList()
         }
 
         val uri = CalendarContract.Events.CONTENT_URI
@@ -131,7 +131,7 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
 
         val events = mutableListOf<Event>()
 
-        calendarIdList?.forEach { calendarId ->
+        calendarIdList.forEach { calendarId ->
             val selectionArgs = arrayOf(calendarId.toString(), startOfYesterday.timeInMillis.toString(), endOfTomorrow.timeInMillis.toString())
 
             val cursor = contentResolver.query(uri, projection, selection, selectionArgs, null)
@@ -177,7 +177,7 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
         var calendarIdList: List<Long>?
 
         runBlocking {
-            calendarIdList = preferences.getCalendars().first()
+            calendarIdList = if (preferences.getCalendars().first()!=null) preferences.getCalendars().first()!! else emptyList()
         }
 
         // Get the start and end dates for the current week

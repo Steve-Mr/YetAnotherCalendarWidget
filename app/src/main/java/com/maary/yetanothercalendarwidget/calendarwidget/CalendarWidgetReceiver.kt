@@ -2,6 +2,7 @@ package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Keep
 @AndroidEntryPoint
 class CalendarWidgetReceiver: GlanceAppWidgetReceiver() {
 
@@ -28,7 +30,6 @@ class CalendarWidgetReceiver: GlanceAppWidgetReceiver() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         CoroutineScope(Dispatchers.IO).launch {
-//            Widget().updateAll(context) // This can be suspend if needed
             calendarContentResolver.getThreeEventsForCalendar()
             calendarContentResolver.getWeeklyEventsForCalendar()
             val manager = GlanceAppWidgetManager(context)

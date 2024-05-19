@@ -7,9 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -25,9 +23,13 @@ class PreferenceRepository @Inject constructor(@ApplicationContext context: Cont
 
     fun getCalendars(): Flow<List<Long>?> {
         return dataStore.data.map { preferences ->
-            preferences[CALENDARS]?.split(",")?.map { it.toLong() }
+            preferences[CALENDARS]
+                ?.takeIf { it.isNotEmpty() } // Filter out empty strings
+                ?.split(",")
+                ?.mapNotNull { it.toLongOrNull() } // Handle invalid Long conversions
         }
     }
+
 
     suspend fun setCalendars(calendars: List<Long>) {
         dataStore.edit { preferences ->
