@@ -91,34 +91,16 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
 
 // Calculate start and end timestamps for yesterday, today, and tomorrow
         val today = Calendar.getInstance()
-        val startOfToday = today.clone() as Calendar
-        startOfToday.set(Calendar.HOUR_OF_DAY, 0)
-        startOfToday.set(Calendar.MINUTE, 0)
-        startOfToday.set(Calendar.SECOND, 0)
-
-        val endOfToday = today.clone() as Calendar
-        endOfToday.set(Calendar.HOUR_OF_DAY, 23)
-        endOfToday.set(Calendar.MINUTE, 59)
-        endOfToday.set(Calendar.SECOND, 59)
 
         val yesterday = today.clone() as Calendar
-        yesterday.add(Calendar.DAY_OF_MONTH, -1)
+        yesterday.add(Calendar.DAY_OF_MONTH, -2)
         val startOfYesterday = yesterday.clone() as Calendar
-        startOfYesterday.set(Calendar.HOUR_OF_DAY, 0)
-        startOfYesterday.set(Calendar.MINUTE, 0)
-        startOfYesterday.set(Calendar.SECOND, 0)
-
-        val endOfYesterday = yesterday.clone() as Calendar
-        endOfYesterday.set(Calendar.HOUR_OF_DAY, 23)
-        endOfYesterday.set(Calendar.MINUTE, 59)
-        endOfYesterday.set(Calendar.SECOND, 59)
+        startOfYesterday.set(Calendar.HOUR_OF_DAY, 23)
+        startOfYesterday.set(Calendar.MINUTE, 59)
+        startOfYesterday.set(Calendar.SECOND, 59)
 
         val tomorrow = today.clone() as Calendar
         tomorrow.add(Calendar.DAY_OF_MONTH, 1)
-        val startOfTomorrow = tomorrow.clone() as Calendar
-        startOfTomorrow.set(Calendar.HOUR_OF_DAY, 0)
-        startOfTomorrow.set(Calendar.MINUTE, 0)
-        startOfTomorrow.set(Calendar.SECOND, 0)
 
         val endOfTomorrow = tomorrow.clone() as Calendar
         endOfTomorrow.set(Calendar.HOUR_OF_DAY, 23)
@@ -144,7 +126,7 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
                     val dtend = it.getLongOrNull(it.getColumnIndex(CalendarContract.Events.DTEND))
                     val allDay = it.getIntOrNull(it.getColumnIndex(CalendarContract.Events.ALL_DAY)) == 1
                     events.add(Event(id, title, dtstart, dtend, allDay))
-                    Log.v("CAS" , "$title, $allDay")
+                    Log.v("CAS-3d" , "$title, $allDay")
                 }
             }
         }
@@ -183,18 +165,21 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
         // Get the start and end dates for the current week
         val calendar = Calendar.getInstance()
         val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        val startOfWeek = calendar.clone() as Calendar
-        startOfWeek.add(Calendar.DAY_OF_WEEK, -firstDayOfWeek + 1)
-        startOfWeek.set(Calendar.HOUR_OF_DAY, 0)
-        startOfWeek.set(Calendar.MINUTE, 0)
-        startOfWeek.set(Calendar.SECOND, 0)
-        startOfWeek.set(Calendar.MILLISECOND, 0)
-        val endOfWeek = calendar.clone() as Calendar
-        endOfWeek.add(Calendar.DAY_OF_WEEK, 7 - firstDayOfWeek)
-        endOfWeek.set(Calendar.HOUR_OF_DAY, 23)
-        endOfWeek.set(Calendar.MINUTE, 59)
-        endOfWeek.set(Calendar.SECOND, 59)
-        endOfWeek.set(Calendar.MILLISECOND, 999)
+
+        val startOfLastWeek = calendar.clone() as Calendar
+        startOfLastWeek.add(Calendar.WEEK_OF_YEAR, -2)
+        startOfLastWeek.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY)
+        startOfLastWeek.set(Calendar.HOUR_OF_DAY, 23)
+        startOfLastWeek.set(Calendar.MINUTE, 59)
+        startOfLastWeek.set(Calendar.SECOND, 59)
+
+        val endOfNextWeek = calendar.clone() as Calendar
+        endOfNextWeek.add(Calendar.WEEK_OF_YEAR, 1)
+        endOfNextWeek.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY)
+        endOfNextWeek.set(Calendar.HOUR_OF_DAY, 23)
+        endOfNextWeek.set(Calendar.MINUTE, 59)
+        endOfNextWeek.set(Calendar.SECOND, 59)
+        endOfNextWeek.set(Calendar.MILLISECOND, 999)
 
         // Query the content resolver for events in the current week
         val uri = CalendarContract.Events.CONTENT_URI
@@ -212,8 +197,8 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
         calendarIdList?.forEach { calendarId ->
             val selectionArgs = arrayOf(
                 calendarId.toString(),
-                startOfWeek.timeInMillis.toString(),
-                endOfWeek.timeInMillis.toString()
+                startOfLastWeek.timeInMillis.toString(),
+                endOfNextWeek.timeInMillis.toString()
             )
             val sortOrder = "${CalendarContract.Events.DTSTART} ASC"
 

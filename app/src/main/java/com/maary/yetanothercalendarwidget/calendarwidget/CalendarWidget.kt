@@ -2,8 +2,9 @@ package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import androidx.annotation.Keep
-import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,8 +87,11 @@ class CalendarWidget : GlanceAppWidget() {
                 Image(modifier = GlanceModifier
                     .cornerRadius(16.dp)
                     .clickable {
-                        calendarContentResolver.getThreeEventsForCalendar()
-                        calendarContentResolver.getWeeklyEventsForCalendar()
+                        if (isWeekView) {
+                            calendarContentResolver.getWeeklyEventsForCalendar()
+                        } else {
+                            calendarContentResolver.getThreeEventsForCalendar()
+                        }
                     }
                     .background(GlanceTheme.colors.inversePrimary)
                     .padding(4.dp),
@@ -132,56 +136,29 @@ class CalendarWidget : GlanceAppWidget() {
     private fun WeekView(
         events: List<CalendarContentResolver.Event>
     ) {
-        val eventsByDay = events.groupBy {
-            when (it.dtstart?.let { it1 -> getDayOfWeek(it1) }) {
-                1 -> "MON"
-                2 -> "TUE"
-                3 -> "WED"
-                4 -> "THU"
-                5 -> "FRI"
-                6 -> "SAT"
-                7 -> "SUN"
-                else -> "NONE"
-            }
+
+        val eventsByDay = events.groupBy { event ->
+            val dayOfYear = getDayOfYear(event.dtstart!!)
+            dayOfYear
         }
 
-        val widgetItemStates = listOf(
-            WidgetItemState(
-                eventsByDay["SUN"] ?: emptyList(),
-                LocalContext.current.getString(R.string.sunday),
-                GlanceTheme.colors.primaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["MON"] ?: emptyList(),
-                LocalContext.current.getString(R.string.monday),
-                GlanceTheme.colors.primaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["TUE"] ?: emptyList(),
-                LocalContext.current.getString(R.string.tuesday),
-                GlanceTheme.colors.secondaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["WED"] ?: emptyList(),
-                LocalContext.current.getString(R.string.wednesday),
-                GlanceTheme.colors.tertiaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["THU"] ?: emptyList(),
-                LocalContext.current.getString(R.string.thursday),
-                GlanceTheme.colors.primaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["FRI"] ?: emptyList(),
-                LocalContext.current.getString(R.string.friday),
-                GlanceTheme.colors.secondaryContainer
-            ),
-            WidgetItemState(
-                eventsByDay["SAT"] ?: emptyList(),
-                LocalContext.current.getString(R.string.saturday),
-                GlanceTheme.colors.tertiaryContainer
+        val (minDtstart, maxDtstart) = findEarliestAndLatestDates(events)
+
+        val widgetItemStates = mutableListOf<WidgetItemState>()
+
+        for (day in getDayOfYear(minDtstart!!) .. getDayOfYear(maxDtstart!!)) {
+            val dayOfWeek = getDayOfWeek(day)
+            Log.v("YACW-DAY", "$day, $dayOfWeek")
+            widgetItemStates.add(
+                WidgetItemState(
+                    eventsByDay[day] ?: emptyList(),
+                    LocalContext.current.getString(getDayOfWeekResource(dayOfWeek)), // Use a helper function
+                    getBackgroundColor(dayOfWeek)  // Another helper function
+                )
             )
-        )
+        }
+
+        Log.v("YACW", widgetItemStates.size.toString())
 
         LazyColumn(modifier = GlanceModifier.padding(8.dp)) {
             items(widgetItemStates) { widgetItemState ->
@@ -345,9 +322,16 @@ class CalendarWidget : GlanceAppWidget() {
         else 0
     }
 
-    private fun getDayOfWeek(milliseconds: Long): Int {
+
+    private fun getDayOfYear(milliseconds: Long): Int {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = milliseconds
+        return calendar.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun getDayOfWeek(day: Int): Int {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_YEAR, day)
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
         return when (dayOfWeek) {
@@ -372,6 +356,43 @@ class CalendarWidget : GlanceAppWidget() {
         val date = Date(milliseconds)
         val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
         return formatter.format(date)
+    }
+
+    private fun getDayOfWeekResource(dayOfWeek: Int): Int {
+        return when (dayOfWeek) {
+            1 -> R.string.monday
+            2 -> R.string.tuesday
+            3 -> R.string.wednesday
+            4 -> R.string.thursday
+            5 -> R.string.friday
+            6 -> R.string.saturday
+            7 -> R.string.sunday
+            else -> 0 // Handle unexpected input
+        }
+    }
+
+    @Composable
+    private fun getBackgroundColor(dayOfWeek: Int): ColorProvider {
+        return when (dayOfWeek) {
+            1, 4 -> GlanceTheme.colors.primaryContainer // Monday, Thursday
+            2, 5 -> GlanceTheme.colors.secondaryContainer // Tuesday, Friday
+            3, 6 -> GlanceTheme.colors.tertiaryContainer // Wednesday, Saturday
+            7 -> GlanceTheme.colors.primaryContainer // Sunday (example, adjust as needed)
+            else -> GlanceTheme.colors.background // Default for unexpected input
+        }
+    }
+
+    private fun findEarliestAndLatestDates(events: List<CalendarContentResolver.Event>): Pair<Long?, Long?> {
+        // Find the event with the earliest start date
+        val earliestEvent = events.minByOrNull { it.dtstart ?: Long.MAX_VALUE }
+        // Find the event with the latest end date
+        val latestEvent = events.maxByOrNull { it.dtstart ?: Long.MIN_VALUE }
+
+        // Extract the dates from the found events
+        val earliestDate = earliestEvent?.dtstart
+        val latestDate = latestEvent?.dtstart
+
+        return Pair(earliestDate, latestDate)
     }
 
     data class WidgetItemState(
