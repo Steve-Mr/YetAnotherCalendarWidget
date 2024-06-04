@@ -70,7 +70,7 @@ class CalendarWidget : GlanceAppWidget() {
         val weeklyEvents = calendarContentResolver.weeklyEventsStateFlow.collectAsState().value
         val threeDayEvents = calendarContentResolver.threeDayEventsStateFlow.collectAsState().value
 
-        Box(modifier = GlanceModifier.fillMaxSize(),
+        Box(modifier = GlanceModifier.fillMaxSize(), //.background(GlanceTheme.colors.widgetBackground),
             contentAlignment = Alignment.TopEnd) {
             if (isWeekView) {
                 WeekView(events = weeklyEvents)
@@ -81,7 +81,7 @@ class CalendarWidget : GlanceAppWidget() {
             Row(
                 horizontalAlignment = Alignment.End,
                 modifier = GlanceModifier
-                    .fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+                    .fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
 
                 Image(modifier = GlanceModifier
@@ -191,17 +191,17 @@ class CalendarWidget : GlanceAppWidget() {
             WidgetItemState(
                 yesterdayEvents,
                 LocalContext.current.getString(R.string.yesterday),
-                GlanceTheme.colors.secondaryContainer
+                GlanceTheme.colors.secondary
             ),
             WidgetItemState(
                 todayEvents,
                 LocalContext.current.getString(R.string.today),
-                GlanceTheme.colors.primaryContainer
+                GlanceTheme.colors.primary
             ),
             WidgetItemState(
                 tomorrowEvents,
                 LocalContext.current.getString(R.string.tomorrow),
-                GlanceTheme.colors.tertiaryContainer
+                GlanceTheme.colors.tertiary
             )
         )
 
@@ -263,7 +263,7 @@ class CalendarWidget : GlanceAppWidget() {
         ) {
             Text(
                 text = formatDateFromMilliseconds(event.dtstart!!),
-                style = TextStyle(GlanceTheme.colors.onSurface)
+                style = TextStyle(GlanceTheme.colors.onPrimary)
             )
             Column(modifier = GlanceModifier.padding(horizontal = 16.dp)) {
 
@@ -276,7 +276,7 @@ class CalendarWidget : GlanceAppWidget() {
                         "$dtstart - $dtend"
                     } else LocalContext.current.getString(R.string.allday),
                     style = TextStyle(
-                        color = GlanceTheme.colors.onSurface,
+                        color = GlanceTheme.colors.onPrimary,
                         fontStyle = FontStyle.Italic,
                         fontSize = 12.sp
                     )
@@ -285,7 +285,7 @@ class CalendarWidget : GlanceAppWidget() {
                 Text(
                     text = event.title.toString(),
                     style = TextStyle(
-                        color = GlanceTheme.colors.onSurface,
+                        color = GlanceTheme.colors.onPrimary,
                         fontSize = 16.sp
                     )
                 )
@@ -374,10 +374,10 @@ class CalendarWidget : GlanceAppWidget() {
     @Composable
     private fun getBackgroundColor(dayOfWeek: Int): ColorProvider {
         return when (dayOfWeek) {
-            1, 4 -> GlanceTheme.colors.primaryContainer // Monday, Thursday
-            2, 5 -> GlanceTheme.colors.secondaryContainer // Tuesday, Friday
-            3, 6 -> GlanceTheme.colors.tertiaryContainer // Wednesday, Saturday
-            7 -> GlanceTheme.colors.primaryContainer // Sunday (example, adjust as needed)
+            1, 4 -> GlanceTheme.colors.primary // Monday, Thursday
+            2, 5 -> GlanceTheme.colors.secondary // Tuesday, Friday
+            3, 6 -> GlanceTheme.colors.tertiary // Wednesday, Saturday
+            7 -> GlanceTheme.colors.primary // Sunday (example, adjust as needed)
             else -> GlanceTheme.colors.background // Default for unexpected input
         }
     }
