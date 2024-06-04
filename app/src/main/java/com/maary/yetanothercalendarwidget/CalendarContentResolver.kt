@@ -164,10 +164,9 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
 
         // Get the start and end dates for the current week
         val calendar = Calendar.getInstance()
-        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
         val startOfLastWeek = calendar.clone() as Calendar
-        startOfLastWeek.add(Calendar.WEEK_OF_YEAR, -2)
+        startOfLastWeek.add(Calendar.WEEK_OF_YEAR, -1)
         startOfLastWeek.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY)
         startOfLastWeek.set(Calendar.HOUR_OF_DAY, 23)
         startOfLastWeek.set(Calendar.MINUTE, 59)
