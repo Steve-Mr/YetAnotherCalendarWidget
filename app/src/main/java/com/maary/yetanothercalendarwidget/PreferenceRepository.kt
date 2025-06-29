@@ -3,6 +3,7 @@ package com.maary.yetanothercalendarwidget
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,6 +20,7 @@ class PreferenceRepository @Inject constructor(@ApplicationContext context: Cont
 
     companion object {
         val CALENDARS = stringPreferencesKey("calendars")
+        val IS_WEEK_VIEW = booleanPreferencesKey("isWeekView")
     }
 
     fun getCalendars(): Flow<List<Long>?> {
@@ -34,6 +36,18 @@ class PreferenceRepository @Inject constructor(@ApplicationContext context: Cont
     suspend fun setCalendars(calendars: List<Long>) {
         dataStore.edit { preferences ->
             preferences[CALENDARS] = calendars.joinToString(separator = ",")
+        }
+    }
+
+    fun isWeekView(): Flow<Boolean> {
+        return dataStore.data.map { preferences ->
+            preferences[IS_WEEK_VIEW] ?: false
+        }
+    }
+
+    suspend fun setIsWeekView(isWeekView: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[IS_WEEK_VIEW] = isWeekView
         }
     }
 
