@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -95,6 +96,7 @@ class CalendarWidget : GlanceAppWidget() {
                     }
                     .background(GlanceTheme.colors.inversePrimary)
                     .padding(4.dp),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                     provider = ImageProvider(R.drawable.ic_refresh),
                     contentDescription = "refresh")
 
@@ -110,6 +112,7 @@ class CalendarWidget : GlanceAppWidget() {
                     provider = ImageProvider(
                         if (isWeekView) R.drawable.ic_day else R.drawable.ic_week
                     ),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                     contentDescription = "change")
 
                 Spacer(modifier = GlanceModifier.width(8.dp))
@@ -123,6 +126,7 @@ class CalendarWidget : GlanceAppWidget() {
                         .background(GlanceTheme.colors.inversePrimary)
                         .padding(4.dp),
                     provider = ImageProvider(R.drawable.ic_settings),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                     contentDescription = "change"
                 )
 
