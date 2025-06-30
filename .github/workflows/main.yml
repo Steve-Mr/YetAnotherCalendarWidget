@@ -35,7 +35,7 @@ jobs:
         run: |
           # 获取最新的稳定版 (非 prerelease) 的 tag 作为起点
           # --repo ${{ github.repository }} 确保在 fork 的仓库里也能正确执行
-          LATEST_TAG=$(gh release list --repo ${{ github.repository }} --exclude-preleases --limit 1 --json tagName --jq '.[0].tagName')
+          LATEST_TAG=$(gh release list --repo ${{ github.repository }} --exclude-pre-releases --limit 1 --json tagName --jq '.[0].tagName')
 
           if [[ -z "$LATEST_TAG" ]]; then
             # 如果没有找到任何稳定版 release，就从仓库的第一个 commit 开始
