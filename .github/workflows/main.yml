@@ -3,21 +3,23 @@ name: Android CI
 on:
   workflow_dispatch:
     inputs:
-      build:
-        description: 'Build the project'
+      run_mode:
+        description: '请选择要执行的操作'
+        type: choice
         required: true
-        default: 'true'
-        type: boolean
-      upload:
-        description: 'Upload the release'
-        required: true
-        default: 'true'
-        type: boolean
+        default: 'full_run'
+        options:
+          - build_only # 选项A：仅构建
+          - full_run   # 选项B：构建、发布并上传
 
 jobs:
   build:
-
+    name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 原始权限，用于 checkout 和 create-release
+      packages: write # 如果您使用 ghcr.io
+      pull-requests: read # 如果需要读取pr信息
 
     steps:
       - uses: actions/checkout@v3
@@ -27,6 +29,28 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+
+      - name: Determine Changelog Range
+        id: changelog_range
+        run: |
+          # 获取最新的稳定版 (非 prerelease) 的 tag 作为起点
+          # --repo ${{ github.repository }} 确保在 fork 的仓库里也能正确执行
+          LATEST_TAG=$(gh release list --repo ${{ github.repository }} --exclude-preleases --limit 1 --json tagName --jq '.[0].tagName')
+
+          if [[ -z "$LATEST_TAG" ]]; then
+            # 如果没有找到任何稳定版 release，就从仓库的第一个 commit 开始
+            echo "未找到稳定版 Release, 将从最初的 commit 开始生成日志。"
+            BASE_REF=$(git rev-list --max-parents=0 HEAD)
+          else
+            echo "找到最新的稳定版 Release: $LATEST_TAG"
+            BASE_REF=$LATEST_TAG
+          fi
+
+          echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+          # 终点是当前触发工作流的 commit
+          echo "head_ref=${{ github.sha }}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Storing key.properties
         run: |
@@ -83,6 +107,7 @@ jobs:
 
       # 获取今天已有的 releases 数量，用于生成序号
       - name: Get number of today's releases
+        if: github.event.inputs.run_mode == 'full_run'
         id: release_count
         run: |
           DATE=${{ steps.date.outputs.date }}
@@ -92,7 +117,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      - name: Generate Changelog
+        if: github.event.inputs.run_mode == 'full_run'
+        id: generate_changelog
+        run: |
+          CHANGELOG=$(git log ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)")
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "## Changes" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
       - name: Create Release
+        if: github.event.inputs.run_mode == 'full_run'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -101,12 +138,10 @@ jobs:
           tag_name: release-${{ steps.date.outputs.date }}-${{ steps.release_count.outputs.count }}
           release_name: Release ${{ steps.date.outputs.date }}
           prerelease: true
-          body: |
-            ## Changes
-            ${{ github.event.pull_request.body }}
-            ${{ steps.show_pr_commits.outputs.commits }}
+          body: ${{ steps.generate_changelog.outputs.changelog }}
 
       - uses: actions/upload-release-asset@v1
+        if: github.event.inputs.run_mode == 'full_run'
         name: Upload apk (arm64-v8a)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -117,6 +152,7 @@ jobs:
           asset_content_type: application/zip
 
       - uses: actions/upload-release-asset@v1
+        if: github.event.inputs.run_mode == 'full_run'
         name: Upload apk (armeabi-v7a)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -127,6 +163,7 @@ jobs:
           asset_content_type: application/zip
 
       - uses: actions/upload-release-asset@v1
+        if: github.event.inputs.run_mode == 'full_run'
         name: Upload apk (x86_64)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -137,6 +174,7 @@ jobs:
           asset_content_type: application/zip
 
       - uses: actions/upload-release-asset@v1
+        if: github.event.inputs.run_mode == 'full_run'
         name: Upload apk (x86)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -148,6 +186,7 @@ jobs:
 
 
   upload:
+    if: github.event.inputs.run_mode == 'full_run'
     name: Upload Release
     runs-on: ubuntu-latest
     needs:
@@ -191,6 +230,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
   telegram-bot-api:
+    if: github.event.inputs.run_mode == 'full_run'
     name: Telegram Bot API
     runs-on: ubuntu-latest
     steps:
