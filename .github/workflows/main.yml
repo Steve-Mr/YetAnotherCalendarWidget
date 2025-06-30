@@ -23,6 +23,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -121,19 +124,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Generate Changelog
-        if: github.event.inputs.run_mode == 'full_run'
         id: generate_changelog
         run: |
-          CHANGELOG=$(git log ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)")
-          echo "$CHANGELOG" > changelog.txt
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
-          echo "## Changes" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+          git log ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)" > changelog.txt
+          DELIMITER=$(openssl rand -hex 16)
+          echo "changelog<<$DELIMITER" >> "$GITHUB_OUTPUT"
+          echo "## Changes" >> "$GITHUB_OUTPUT"
+          cat changelog.txt >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "$DELIMITER" >> "$GITHUB_OUTPUT"
 
       - name: Upload changelog artifact
-        if: github.event.inputs.run_mode == 'full_run'
         uses: actions/upload-artifact@v4
         with:
           name: changelog-data
