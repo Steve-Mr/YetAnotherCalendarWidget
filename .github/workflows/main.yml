@@ -126,7 +126,7 @@ jobs:
       - name: Generate Changelog
         id: generate_changelog
         run: |
-          git log ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)" > changelog.txt
+          git log --reverse ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)" > changelog.txt
           DELIMITER=$(openssl rand -hex 16)
           echo "changelog<<$DELIMITER" >> "$GITHUB_OUTPUT"
           echo "## Changes" >> "$GITHUB_OUTPUT"
