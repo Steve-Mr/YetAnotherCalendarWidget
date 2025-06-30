@@ -122,11 +122,19 @@ jobs:
         id: generate_changelog
         run: |
           CHANGELOG=$(git log ${{ steps.changelog_range.outputs.base_ref }}..${{ steps.changelog_range.outputs.head_ref }} --pretty=format:"* %s (%h)")
+          echo "$CHANGELOG" > changelog.txt
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "changelog<<$EOF" >> $GITHUB_OUTPUT
           echo "## Changes" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload changelog artifact
+        if: github.event.inputs.run_mode == 'full_run'
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog-data
+          path: changelog.txt
 
       - name: Create Release
         if: github.event.inputs.run_mode == 'full_run'
@@ -202,6 +210,11 @@ jobs:
         with:
           name: telegram-bot-api-binary
           path: .
+
+      - name: Download Changelog Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-data
 
       - name: find apk
         run: |
