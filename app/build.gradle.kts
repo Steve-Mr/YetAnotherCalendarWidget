@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
 }
 
 
@@ -22,12 +23,12 @@ keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 android {
     namespace = "com.maary.yetanothercalendarwidget"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.maary.yetanothercalendarwidget"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 3
         versionName = "2025.06.29"
 
