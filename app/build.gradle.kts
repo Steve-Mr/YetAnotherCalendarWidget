@@ -5,6 +5,18 @@ plugins {
     id("kotlin-kapt")
 }
 
+
+// Create a variable called keystorePropertiesFile, and initialize it to your
+// keystore.properties file, in the rootProject folder.
+val keystorePropertiesFile = rootProject.file("key.properties")
+
+// Initialize a new Properties() object called keystoreProperties.
+val keystoreProperties = Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
+
 android {
     namespace = "com.maary.yetanothercalendarwidget"
     compileSdk = 34
