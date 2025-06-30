@@ -86,7 +86,8 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
             CalendarContract.Events._ID,
             CalendarContract.Events.TITLE,
             CalendarContract.Events.DTSTART,
-            CalendarContract.Events.DTEND
+            CalendarContract.Events.DTEND,
+            CalendarContract.Events.ALL_DAY
         )
 
 // Calculate start and end timestamps for yesterday, today, and tomorrow
@@ -187,7 +188,8 @@ class CalendarContentResolver @Inject constructor(@ApplicationContext val contex
             CalendarContract.Events.TITLE,
             CalendarContract.Events.DESCRIPTION,
             CalendarContract.Events.DTSTART,
-            CalendarContract.Events.DTEND
+            CalendarContract.Events.DTEND,
+            CalendarContract.Events.ALL_DAY
         )
         val selection = "((${CalendarContract.Events.CALENDAR_ID} = ? AND ${CalendarContract.Events.DTSTART} >= ?) AND (${CalendarContract.Events.DTSTART} <= ?))"
 
