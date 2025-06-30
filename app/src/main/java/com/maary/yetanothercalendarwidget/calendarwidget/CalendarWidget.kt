@@ -2,16 +2,15 @@ package com.maary.yetanothercalendarwidget.calendarwidget
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.util.Log
-import androidx.activity.result.launch
 import androidx.annotation.Keep
- import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
@@ -50,7 +49,6 @@ import androidx.glance.unit.ColorProvider
 import com.maary.yetanothercalendarwidget.CalendarContentResolver
 import com.maary.yetanothercalendarwidget.MainActivity
 import com.maary.yetanothercalendarwidget.PreferenceEntryPoint
-import com.maary.yetanothercalendarwidget.PreferenceRepository
 import com.maary.yetanothercalendarwidget.R
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
@@ -82,8 +80,6 @@ class CalendarWidget : GlanceAppWidget() {
         val coroutineScope = rememberCoroutineScope()
 
         val isWeekView by preferenceRepository.isWeekView().collectAsState(initial = false) //提供一个初始值
-
-//        var isWeekView by remember(initialIsWeekView) { mutableStateOf(initialIsWeekView) }
 
         val calendarContentResolver = CalendarContentResolver(context)
 
@@ -117,7 +113,7 @@ class CalendarWidget : GlanceAppWidget() {
                     .padding(4.dp),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                     provider = ImageProvider(R.drawable.ic_refresh),
-                    contentDescription = "refresh")
+                    contentDescription = LocalContext.current.getString(R.string.refresh_events))
 
                 Spacer(modifier = GlanceModifier.width(8.dp))
 
@@ -134,7 +130,9 @@ class CalendarWidget : GlanceAppWidget() {
                         if (isWeekView) R.drawable.ic_day else R.drawable.ic_week
                     ),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
-                    contentDescription = "change")
+                    contentDescription = LocalContext.current.getString(
+                        if (isWeekView) R.string.day_view else R.string.week_view
+                    ))
 
                 Spacer(modifier = GlanceModifier.width(8.dp))
 
@@ -148,7 +146,7 @@ class CalendarWidget : GlanceAppWidget() {
                         .padding(4.dp),
                     provider = ImageProvider(R.drawable.ic_settings),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
-                    contentDescription = "change"
+                    contentDescription = LocalContext.current.getString(R.string.choose_calendars)
                 )
 
             }

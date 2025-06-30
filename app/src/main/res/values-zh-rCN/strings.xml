@@ -15,4 +15,9 @@
     <string name="tomorrow">明天</string>
     <string name="calendars">日历</string>
     <string name="allday">全天</string>
+    <string name="choose_calendars">选择日历</string>
+    <string name="settings">设置</string>
+    <string name="refresh_events">刷新</string>
+    <string name="day_view">日视图</string>
+    <string name="week_view">周视图</string>
 </resources>
