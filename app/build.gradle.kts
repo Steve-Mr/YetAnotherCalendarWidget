@@ -23,14 +23,14 @@ keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 android {
     namespace = "com.maary.yetanothercalendarwidget"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.maary.yetanothercalendarwidget"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 3
-        versionName = "2025.06.30"
+        versionName = "2025.07.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
