@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.ColorFilter
@@ -169,13 +170,23 @@ class CalendarWidget : GlanceAppWidget() {
 
         val widgetItemStates = mutableListOf<WidgetItemState>()
 
+        val currentDayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+
         for (day in getDayOfYear(minDtstart!!) .. getDayOfYear(maxDtstart!!)) {
             val dayOfWeek = getDayOfWeek(day)
             Log.v("YACW-DAY", "$day, $dayOfWeek")
+
+            val dayTag = LocalContext.current.getString(getDayOfWeekResource(dayOfWeek))
+            val finalTag = if (day == currentDayOfYear) {
+                LocalContext.current.getString(R.string.today)
+            } else {
+                dayTag
+            }
+
             widgetItemStates.add(
                 WidgetItemState(
                     eventsByDay[day] ?: emptyList(),
-                    LocalContext.current.getString(getDayOfWeekResource(dayOfWeek)), // Use a helper function
+                    finalTag, // Use a helper function
                     getBackgroundColor(dayOfWeek)  // Another helper function
                 )
             )
